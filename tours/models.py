@@ -82,11 +82,13 @@ class TourStep(models.Model):
     description = HTMLField(blank=True, verbose_name="Описание")
     image = models.ImageField(verbose_name="Изображение", upload_to='static/img/tours/')
     thumb = models.ImageField(blank=True, editable=False, upload_to='static/img/tours/')
+    priority = models.IntegerField(verbose_name="Порядковый номер", default=1)
 
     def __str__(self):
         return self.name
 
     class Meta:
+        ordering = ['priority']
         verbose_name = u"Этап тура"
         verbose_name_plural = u"Этапы тура"
 
