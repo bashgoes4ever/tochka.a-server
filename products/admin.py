@@ -18,8 +18,9 @@ class ProductUnitInline(admin.TabularInline):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in Product._meta.fields]
+    list_display = ('id', 'name', 'category', 'price')
     inlines = [ProductImageInline, ProductCharacteristicInline, ProductUnitInline]
+    search_fields = ('name',)
 
     class Meta:
         model = Product
