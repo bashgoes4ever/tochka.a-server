@@ -62,6 +62,6 @@ class Filters(APIView):
         else:
             objs = Product.objects.filter(category__base_category=category)
 
-        filters = ProductTag.objects.filter(products__in=objs)
+        filters = ProductTag.objects.filter(products__in=objs).distinct()
         filter_serializer = ProductTagSerializer(filters, many=True)
         return Response(filter_serializer.data)

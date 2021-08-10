@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/v1/', include('orders.urls')),
     path('api/v1/', include('gallery.urls')),
     path('api/v1/', include('tours.urls')),
+    path('api/v1/', include('categories.urls')),
 ]
