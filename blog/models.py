@@ -22,11 +22,13 @@ class Article(models.Model):
     description = HTMLField(blank=True, verbose_name="Короткое описание")
     content1 = HTMLField(blank=True, verbose_name="Контент до слайдера")
     content2 = HTMLField(blank=True, verbose_name="Контент после слайдера")
+    priority = models.IntegerField(verbose_name="Приоритет", default=1)
 
     def __str__(self):
         return self.name
 
     class Meta:
+        ordering = ["-priority"]
         verbose_name = u"Пост"
         verbose_name_plural = u"Посты"
 
