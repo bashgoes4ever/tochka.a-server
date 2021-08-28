@@ -9,7 +9,7 @@ from products.models import ProductUnit, ProductUnitBookingDates
 from basket.models import Basket
 
 
-FROM_EMAIL = 'mail@axis-marketing.ru'
+FROM_EMAIL = 'orders@611925-cx10344.tmweb.ru' # 5p8bYuqX
 TO_EMAIL = 'marukhelin@gmail.com'
 
 PAYMENT_TYPES = (
@@ -98,19 +98,18 @@ class Order(models.Model):
 
                 self.total_price += product_in_basket.quantity*product_in_basket.product.price*range.days
 
-        #   if not self.pk:
-        #         message = '''
-        #             Создан новый заказ. Зайдите в админ панель, чтобы посмотреть подробности.
-        #             Общая стоимость: {}
-        #             Дата создания: {}
-        #             '''.format(total_price, self.date)
-        #         send_mail(
-        #             u'Заказ на сайте',
-        #             message,
-        #             FROM_EMAIL,
-        #             [TO_EMAIL],
-        #             fail_silently=True,
-        #         )
+            if not self.pk:
+                message = '''
+                    Создан новый заказ. Зайдите в админ панель, чтобы посмотреть подробности.
+                    Общая стоимость: {}
+                    '''.format(self.total_price)
+                send_mail(
+                    u'Бронирование на сайте',
+                    message,
+                    FROM_EMAIL,
+                    [TO_EMAIL],
+                    fail_silently=True,
+                )
         super().save(*args, **kwargs)
 
 
@@ -145,7 +144,7 @@ class FormApplication(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             message = '''
-                Поступила заявка на обратный звонок.
+                Поступила заявка с сайта.
                 Дата создания: {}
                 Имя: {}
                 Телефон: {}

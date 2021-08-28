@@ -13,6 +13,7 @@ class CategoryCard(ModelWithCategory):
     image = models.ImageField(verbose_name="Изображение", blank=True, upload_to='static/img/categories/')
     thumb = models.ImageField(blank=True, editable=False, upload_to='static/img/categories/')
     show_link = models.BooleanField(verbose_name="Показывать кнопку 'подробнее'", default=True)
+    custom_link = models.CharField(blank=True, max_length=64, verbose_name="Своя ссылка")
     priority = models.IntegerField(verbose_name="Приоритет", default=1)
 
     def __str__(self):
