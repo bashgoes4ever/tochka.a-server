@@ -9,7 +9,7 @@ from products.models import ProductUnit, ProductUnitBookingDates
 from basket.models import Basket
 
 
-FROM_EMAIL = 'orders@611925-cx10344.tmweb.ru' # 5p8bYuqX
+FROM_EMAIL = 'orders@611925-cx10344.tmweb.ru'
 TO_EMAIL = 'marukhelin@gmail.com'
 
 PAYMENT_TYPES = (

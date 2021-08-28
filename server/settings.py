@@ -142,6 +142,10 @@ TINYMCE_DEFAULT_CONFIG = {
     "plugins": "removeformat"
 }
 
+EMAIL_HOST = 'smtp.timeweb.ru'
+EMAIL_HOST_USER = 'orders@611925-cx10344.tmweb.ru'
+EMAIL_HOST_PASSWORD = '5p8bYuqX'
+
 try:
     from .prod_settings import *
 except ImportError:
