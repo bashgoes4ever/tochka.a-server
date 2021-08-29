@@ -49,7 +49,7 @@ class Tour(models.Model):
     price = models.IntegerField(verbose_name="Цена", null=False)
     how_to_find = HTMLField(blank=True, verbose_name="Как добраться")
     interesting_places = HTMLField(blank=True, verbose_name="Интересные места")
-    video_url = models.TextField(blank=True, verbose_name="Встроенное видео")
+    video_url = models.TextField(max_length=1024, blank=True, verbose_name="Встроенное видео")
     video_image = models.ImageField(verbose_name="Превью видео", blank=True, upload_to='static/img/tours/')
     video_thumb = models.ImageField(blank=True, editable=False, upload_to='static/img/tours/')
     inventory_text = HTMLField(blank=True, verbose_name="Что будем брать с собой")
