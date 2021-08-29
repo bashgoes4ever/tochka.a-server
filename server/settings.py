@@ -143,8 +143,8 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 
 EMAIL_HOST = 'smtp.timeweb.ru'
-EMAIL_HOST_USER = 'orders@611925-cx10344.tmweb.ru'
-EMAIL_HOST_PASSWORD = '5p8bYuqX'
+EMAIL_HOST_USER = 'mail@tochka-a-sochi.ru'
+EMAIL_HOST_PASSWORD = 'nSy2jAjB'
 
 try:
     from .prod_settings import *

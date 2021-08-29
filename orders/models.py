@@ -9,8 +9,8 @@ from products.models import ProductUnit, ProductUnitBookingDates
 from basket.models import Basket
 
 
-FROM_EMAIL = 'orders@611925-cx10344.tmweb.ru'
-TO_EMAIL = 'marukhelin@gmail.com'
+FROM_EMAIL = 'mail@tochka-a-sochi.ru'
+TO_EMAIL = 'tochka_a_sochi@mail.ru'
 
 PAYMENT_TYPES = (
     ('bank_card', 'Банковская карта'),
@@ -99,6 +99,7 @@ class Order(models.Model):
                 self.total_price += product_in_basket.quantity*product_in_basket.product.price*range.days
 
             if not self.pk:
+                # to admin
                 message = '''
                     Создан новый заказ. Зайдите в админ панель, чтобы посмотреть подробности.
                     Общая стоимость: {}
@@ -110,6 +111,22 @@ class Order(models.Model):
                     [TO_EMAIL],
                     fail_silently=True,
                 )
+
+                # to client
+                if self.email:
+                    message = '''
+                        Вы успешно оформили заказ на сайте tochka-a-sochi.ru
+                        Общая стоимость: {}
+                        '''.format(self.total_price)
+                    for product_in_basket in self.basket.products.all():
+                        message += '{}: x{}, {} за шт'.format(product_in_basket.product.name, product_in_basket.quantity, product_in_basket.product.price)
+                    send_mail(
+                        u'Бронирование на сайте',
+                        message,
+                        FROM_EMAIL,
+                        [self.email],
+                        fail_silently=True,
+                    )
         super().save(*args, **kwargs)
 
 
