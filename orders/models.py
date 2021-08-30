@@ -59,7 +59,7 @@ class Order(models.Model):
     basket = models.ForeignKey(Basket, on_delete=models.SET_NULL, null=True, verbose_name="Корзина")
     name = models.CharField(max_length=64, verbose_name="Имя", blank=True)
     phone = models.CharField(max_length=64, verbose_name="Телефон", blank=False)
-    email = models.CharField(max_length=64, verbose_name="Почта", blank=True)
+    email = models.CharField(max_length=64, verbose_name="Почта", blank=False)
     city = models.CharField(max_length=64, verbose_name="Город", blank=True)
     address = models.CharField(max_length=64, verbose_name="Адрес", blank=True)
     comment = models.TextField(max_length=64, verbose_name="Комментарий", blank=True)
@@ -100,10 +100,8 @@ class Order(models.Model):
 
             if not self.pk:
                 # to admin
-                message = '''
-                    Создан новый заказ. Зайдите в админ панель, чтобы посмотреть подробности.
-                    Общая стоимость: {}
-                    '''.format(self.total_price)
+                message = 'Создан новый заказ. Зайдите в админ панель, чтобы посмотреть подробности.\n'
+                message += 'Общая стоимость: {} руб.'.format(self.total_price)
                 send_mail(
                     u'Бронирование на сайте',
                     message,
@@ -114,12 +112,11 @@ class Order(models.Model):
 
                 # to client
                 if self.email:
-                    message = '''
-                        Вы успешно оформили заказ на сайте tochka-a-sochi.ru
-                        Общая стоимость: {}
-                        '''.format(self.total_price)
+                    message = 'Вы успешно оформили заказ на сайте tochka-a-sochi.ru\n'
+                    message += 'Общая стоимость: {} руб.\n'.format(self.total_price)
                     for product_in_basket in self.basket.products.all():
-                        message += '{}: x{}, {} за шт'.format(product_in_basket.product.name, product_in_basket.quantity, product_in_basket.product.price)
+                        message += '\n{}: x{}, {} руб. за штуку'.format(product_in_basket.product.name, product_in_basket.quantity, product_in_basket.product.price)
+                    message += '\n\nТелефон для связи: 8 938 4451 613'
                     send_mail(
                         u'Бронирование на сайте',
                         message,
@@ -160,20 +157,14 @@ class FormApplication(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            message = '''
-                Поступила заявка с сайта.
-                Дата создания: {}
-                Имя: {}
-                Телефон: {}
-                '''.format(self.date, self.name, self.phone)
+            message = 'Поступила заявка с сайта.\n'
+            message += 'Дата создания: {}\n'.format(self.date)
+            message += 'Имя: {}\n'.format(self.name)
+            message += 'Телефон: {}\n'.format(self.phone)
             if self.form:
-                message += '''
-                    Форма: {}
-                '''.format(self.form)
+                message += 'Форма: {}\n'.format(self.form)
             if self.description:
-                message += '''
-                    Описание: {}
-                '''.format(self.description)
+                message += 'Описание: {}'.format(self.description)
             send_mail(
                 u'Заявка с сайта',
                 message,
