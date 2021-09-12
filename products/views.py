@@ -33,7 +33,7 @@ class Products(APIView):
         filters = ProductTag.objects.filter(products__in=objs)
         filter_serializer = ProductTagSerializer(filters, many=True)
 
-        paginator = Paginator(objs, 9)
+        paginator = Paginator(objs, 1)
         page_num = request.GET.get('page', 1)
         paginated_objs = paginator.get_page(page_num)
 

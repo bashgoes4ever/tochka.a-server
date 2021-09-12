@@ -25,4 +25,5 @@ urlpatterns = [
     path('api/v1/', include('gallery.urls')),
     path('api/v1/', include('tours.urls')),
     path('api/v1/', include('categories.urls')),
+    path('api/v1/', include('meta.urls')),
 ]

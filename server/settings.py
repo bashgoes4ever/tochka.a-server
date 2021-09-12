@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'tours',
     'blog',
     'gallery',
-    'categories'
+    'categories',
+    'meta'
 ]
 
 MIDDLEWARE = [
@@ -124,11 +125,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-# STATIC_URL = '/static/'
-#
-# STATICFILES_DIRS = (
-#     str(BASE_DIR / 'static'),
-# )
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+    str(BASE_DIR / 'static'),
+)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -146,7 +147,7 @@ EMAIL_HOST = 'smtp.timeweb.ru'
 EMAIL_HOST_USER = 'mail@tochka-a-sochi.ru'
 EMAIL_HOST_PASSWORD = 'nSy2jAjB'
 
-try:
-    from .prod_settings import *
-except ImportError:
-    pass
+# try:
+#     from .prod_settings import *
+# except ImportError:
+#     pass
