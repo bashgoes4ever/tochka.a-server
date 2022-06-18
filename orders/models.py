@@ -106,7 +106,7 @@ class Order(models.Model):
                     self.total_price += product_in_basket.quantity*product_in_basket.product.price*range.days
 
             if not self.pk:
-                # to admin
+                # to  admin
                 message = 'Создан новый заказ. Зайдите в админ панель, чтобы посмотреть подробности.\n'
                 message += 'Общая стоимость: {} руб.'.format(self.total_price)
                 send_mail(
