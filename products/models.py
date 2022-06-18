@@ -54,7 +54,7 @@ class Product(models.Model):
     priority = models.IntegerField(verbose_name="Приоритет", default=1)
     slug = models.SlugField(blank=True)
     tags = models.ManyToManyField(ProductTag, related_name='products', blank=True, default=None, verbose_name=u"Параметры")
-    # hour_rate = models.BooleanField(verbose_name=u"Товар с почасовой оплатой", default=False)
+    hour_rate = models.BooleanField(verbose_name=u"Товар с почасовой оплатой", default=False)
 
     def __str__(self):
         return self.name
