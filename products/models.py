@@ -122,8 +122,8 @@ class ProductUnit(models.Model):
 class ProductUnitBookingDates(models.Model):
     product_unit = models.ForeignKey(ProductUnit, blank=False, null=False, related_name='booking_dates',
                                 on_delete=models.CASCADE, verbose_name="Единица продукта")
-    date_from = models.DateTimeField(verbose_name="Бронь от")
-    date_to = models.DateTimeField(verbose_name="Бронь до")
+    date_from = models.DateField(verbose_name="Бронь от")
+    date_to = models.DateField(verbose_name="Бронь до")
     total_price = models.IntegerField(verbose_name="Полная цена", null=True, blank=True)
 
     def __str__(self):
