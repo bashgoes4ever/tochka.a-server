@@ -19,7 +19,7 @@ class ProductCardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('images', 'name', 'slug', 'price', 'id', 'old_price')
+        fields = ('images', 'name', 'slug', 'price', 'id', 'old_price', 'hour_rate')
 
 
 class ProductTagSerializer(serializers.ModelSerializer):

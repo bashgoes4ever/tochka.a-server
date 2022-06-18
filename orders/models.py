@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import date
+from datetime import datetime
 from django.forms import ValidationError
 from django.utils.timezone import now
 from django.db.models.signals import post_save, post_delete
@@ -31,11 +31,15 @@ STATUSES = (
 
 
 def intersects_interval(i1, i2):
-    if i2.date_from <= i1.date_from < i2.date_to:
+    date_from1 = i1.date_from.replace(tzinfo=None)
+    date_to1 = i1.date_to.replace(tzinfo=None)
+    date_from2 = i2.date_from.replace(tzinfo=None)
+    date_to2 = i2.date_to.replace(tzinfo=None)
+    if date_from2 <= date_from1 < date_to2:
         return True
-    if i2.date_from < i1.date_to <= i2.date_to:
+    if date_from2 < date_to1 <= date_to2:
         return True
-    if i1.date_to > i2.date_from >= i1.date_from and i1.date_to >= i2.date_to >= i1.date_from:
+    if date_to1 > date_from2 >= date_from1 and date_to1 >= date_to2 >= date_from1:
         return True
     return False
 
@@ -63,8 +67,8 @@ class Order(models.Model):
     city = models.CharField(max_length=64, verbose_name="Город", blank=True)
     address = models.CharField(max_length=64, verbose_name="Адрес", blank=True)
     comment = models.TextField(max_length=64, verbose_name="Комментарий", blank=True)
-    date_from = models.DateField(verbose_name="Бронь от")
-    date_to = models.DateField(verbose_name="Бронь до")
+    date_from = models.DateTimeField(verbose_name="Бронь от")
+    date_to = models.DateTimeField(verbose_name="Бронь до")
     created = models.DateTimeField(default=now, editable=False, verbose_name=u"Создание заказа")
     payment_type = models.CharField(max_length=32, choices=PAYMENT_TYPES, verbose_name="Тип оплаты", default='cash_shop')
     status = models.CharField(max_length=32, choices=STATUSES, verbose_name="Статус", default='created')
@@ -80,8 +84,8 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         if self.basket and len(self.basket.products.all()) > 0:
             self.total_price = 0
-            range = date(year=self.date_to.year, month=self.date_to.month, day=self.date_to.day) - \
-                    date(year=self.date_from.year, month=self.date_from.month, day=self.date_from.day)
+            range = datetime(year=self.date_to.year, month=self.date_to.month, day=self.date_to.day, hour=self.date_to.hour) - \
+                    datetime(year=self.date_from.year, month=self.date_from.month, day=self.date_from.day, hour=self.date_from.hour)
 
             for product_in_basket in self.basket.products.all():
 
@@ -96,34 +100,37 @@ class Order(models.Model):
                 if len(product_units) < product_in_basket.quantity:
                     raise ValidationError("На выбранные даты некоторые товары недоступны")
 
-                self.total_price += product_in_basket.quantity*product_in_basket.product.price*range.days
+                if product_in_basket.product.hour_rate:
+                    self.total_price += product_in_basket.quantity * product_in_basket.product.price * (range.seconds // 3600)
+                else:
+                    self.total_price += product_in_basket.quantity*product_in_basket.product.price*range.days
 
             if not self.pk:
                 # to admin
                 message = 'Создан новый заказ. Зайдите в админ панель, чтобы посмотреть подробности.\n'
                 message += 'Общая стоимость: {} руб.'.format(self.total_price)
-                send_mail(
-                    u'Бронирование на сайте',
-                    message,
-                    FROM_EMAIL,
-                    [TO_EMAIL],
-                    fail_silently=True,
-                )
+                # send_mail(
+                #     u'Бронирование на сайте',
+                #     message,
+                #     FROM_EMAIL,
+                #     [TO_EMAIL],
+                #     fail_silently=True,
+                # )
 
                 # to client
-                if self.email:
-                    message = 'Вы успешно оформили заказ на сайте tochka-a-sochi.ru\n'
-                    message += 'Общая стоимость: {} руб.\n'.format(self.total_price)
-                    for product_in_basket in self.basket.products.all():
-                        message += '\n{}: x{}, {} руб. за штуку'.format(product_in_basket.product.name, product_in_basket.quantity, product_in_basket.product.price)
-                    message += '\n\nТелефон для связи: 8 938 4451 613'
-                    send_mail(
-                        u'Бронирование на сайте',
-                        message,
-                        FROM_EMAIL,
-                        [self.email],
-                        fail_silently=True,
-                    )
+                # if self.email:
+                #     message = 'Вы успешно оформили заказ на сайте tochka-a-sochi.ru\n'
+                #     message += 'Общая стоимость: {} руб.\n'.format(self.total_price)
+                #     for product_in_basket in self.basket.products.all():
+                #         message += '\n{}: x{}, {} руб. за штуку'.format(product_in_basket.product.name, product_in_basket.quantity, product_in_basket.product.price)
+                #     message += '\n\nТелефон для связи: 8 938 4451 613'
+                #     send_mail(
+                #         u'Бронирование на сайте',
+                #         message,
+                #         FROM_EMAIL,
+                #         [self.email],
+                #         fail_silently=True,
+                #     )
         super().save(*args, **kwargs)
 
 
@@ -131,10 +138,10 @@ class ProductUnitInOrder(models.Model):
     product_unit = models.ForeignKey(ProductUnit, on_delete=models.CASCADE, blank=False, null=False, verbose_name="Товар")
     order = models.ForeignKey(Order, on_delete=models.CASCADE, blank=False, null=False, verbose_name="Заказ", related_name="products")
     quantity = models.IntegerField(verbose_name="Количество")
-    price = models.IntegerField(verbose_name="Цена")
+    price = models.IntegerField(verbose_name="Цена за час/день")
 
     def __str__(self):
-        return self.product_unit.article
+        return self.product_unit.product.name
 
     class Meta:
         verbose_name = u"Товар в заказе"
@@ -198,7 +205,8 @@ def order_post_save(sender, instance, created, **kwargs):
                 'quantity': product_in_basket.quantity,
                 'price': product_in_basket.product.price
             }
-            ProductUnitInOrder.objects.get_or_create(**product_unit_in_order_data)
+            p, c = ProductUnitInOrder.objects.get_or_create(**product_unit_in_order_data)
+            print(p, c)
 
             product_unit_booking_dates_data = {
                 'product_unit': product_unit,

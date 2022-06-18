@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from django.db import models
 from base.models import ModelWithCategory
 from tinymce.models import HTMLField
@@ -54,6 +54,7 @@ class Product(models.Model):
     priority = models.IntegerField(verbose_name="Приоритет", default=1)
     slug = models.SlugField(blank=True)
     tags = models.ManyToManyField(ProductTag, related_name='products', blank=True, default=None, verbose_name=u"Параметры")
+    hour_rate = models.BooleanField(verbose_name=u"Товар с почасовой оплатой", default=False)
 
     def __str__(self):
         return self.name
@@ -121,8 +122,8 @@ class ProductUnit(models.Model):
 class ProductUnitBookingDates(models.Model):
     product_unit = models.ForeignKey(ProductUnit, blank=False, null=False, related_name='booking_dates',
                                 on_delete=models.CASCADE, verbose_name="Единица продукта")
-    date_from = models.DateField(verbose_name="Бронь от")
-    date_to = models.DateField(verbose_name="Бронь до")
+    date_from = models.DateTimeField(verbose_name="Бронь от")
+    date_to = models.DateTimeField(verbose_name="Бронь до")
     total_price = models.IntegerField(verbose_name="Полная цена", null=True, blank=True)
 
     def __str__(self):
@@ -134,7 +135,10 @@ class ProductUnitBookingDates(models.Model):
 
     def save(self, *args, **kwargs):
         price = self.product_unit.product.price
-        range = date(year=self.date_to.year, month=self.date_to.month, day=self.date_to.day) - \
-                date(year=self.date_from.year, month=self.date_from.month, day=self.date_from.day)
-        self.total_price = range.days * price
+        range = datetime(year=self.date_to.year, month=self.date_to.month, day=self.date_to.day, hour=self.date_to.hour) - \
+                datetime(year=self.date_from.year, month=self.date_from.month, day=self.date_from.day, hour=self.date_from.hour)
+        if self.product_unit.product.hour_rate:
+            self.total_price = (range.seconds // 3600) * price
+        else:
+            self.total_price = range.days * price
         super().save(*args, **kwargs)

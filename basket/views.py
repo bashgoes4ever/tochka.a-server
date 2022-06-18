@@ -33,14 +33,21 @@ class ProductInBasketView(APIView):
     def post(self, request, product_id):
         try:
             basket, created = Basket.objects.get_or_create(user=request.session.session_key)
+            product = Product.objects.get(id=product_id)
             serializer = ProductInBasketCreateSerializer(data={
                 "basket": basket.id,
                 "product": product_id,
                 "quantity": 1
             })
+
+            check_hour_rate(basket, product.hour_rate)
+
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+            basket_serializer = BasketSerializer(basket)
+
+            return Response(data=basket_serializer.data, status=status.HTTP_201_CREATED)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -78,7 +85,7 @@ class CheckAvailability(APIView):
         if len(basket.products.all()) > 0:
             date_from = datetime.fromtimestamp(request.data['from']/1000)
             date_to = datetime.fromtimestamp(request.data['to']/1000)
-            range = Range(date(year=date_from.year, month=date_from.month, day=date_from.day), date(year=date_to.year, month=date_to.month, day=date_to.day))
+            range = Range(datetime(year=date_from.year, month=date_from.month, day=date_from.day, hour=date_from.hour), datetime(year=date_to.year, month=date_to.month, day=date_to.day, hour=date_to.hour))
 
             for product_in_basket in basket.products.all():
                 # найти product_units, которые можно забронировать на выбранные даты
@@ -105,3 +112,14 @@ class CheckAvailability(APIView):
             'data': res,
             'status': status.HTTP_200_OK
         })
+
+
+def check_hour_rate(basket, hour_rate):
+    same = True
+    for p in basket.products.all():
+        if p.product.hour_rate is not hour_rate:
+            same = False
+            break
+    if not same:
+        for product in basket.products.all():
+            product.delete()
