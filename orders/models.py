@@ -109,28 +109,28 @@ class Order(models.Model):
                 # to admin
                 message = 'Создан новый заказ. Зайдите в админ панель, чтобы посмотреть подробности.\n'
                 message += 'Общая стоимость: {} руб.'.format(self.total_price)
-                # send_mail(
-                #     u'Бронирование на сайте',
-                #     message,
-                #     FROM_EMAIL,
-                #     [TO_EMAIL],
-                #     fail_silently=True,
-                # )
+                send_mail(
+                    u'Бронирование на сайте',
+                    message,
+                    FROM_EMAIL,
+                    [TO_EMAIL],
+                    fail_silently=True,
+                )
 
                 # to client
-                # if self.email:
-                #     message = 'Вы успешно оформили заказ на сайте tochka-a-sochi.ru\n'
-                #     message += 'Общая стоимость: {} руб.\n'.format(self.total_price)
-                #     for product_in_basket in self.basket.products.all():
-                #         message += '\n{}: x{}, {} руб. за штуку'.format(product_in_basket.product.name, product_in_basket.quantity, product_in_basket.product.price)
-                #     message += '\n\nТелефон для связи: 8 938 4451 613'
-                #     send_mail(
-                #         u'Бронирование на сайте',
-                #         message,
-                #         FROM_EMAIL,
-                #         [self.email],
-                #         fail_silently=True,
-                #     )
+                if self.email:
+                    message = 'Вы успешно оформили заказ на сайте tochka-a-sochi.ru\n'
+                    message += 'Общая стоимость: {} руб.\n'.format(self.total_price)
+                    for product_in_basket in self.basket.products.all():
+                        message += '\n{}: x{}, {} руб. за штуку'.format(product_in_basket.product.name, product_in_basket.quantity, product_in_basket.product.price)
+                    message += '\n\nТелефон для связи: 8 938 4451 613'
+                    send_mail(
+                        u'Бронирование на сайте',
+                        message,
+                        FROM_EMAIL,
+                        [self.email],
+                        fail_silently=True,
+                    )
         super().save(*args, **kwargs)
 
 
